@@ -1,10 +1,11 @@
 pandas
+torch
+torch_geometric
 numpy
 networkx
 python-igraph
 scikit-learn
 nltk
-spacy
 matplotlib
 neo4j
 py2neo

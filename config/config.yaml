@@ -1,1 +1,5 @@
-mgtab_dataset_path: "data/raw"
+mgtab_root: "data/raw"
+neo4j:
+  uri: "bolt://localhost:7687"
+  user: "neo4j"
+  password: "neo4jpass"
