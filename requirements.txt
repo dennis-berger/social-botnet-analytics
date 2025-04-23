@@ -1,0 +1,11 @@
+pandas
+numpy
+networkx
+python-igraph
+scikit-learn
+nltk
+spacy
+matplotlib
+neo4j
+py2neo
+jupyterlab
