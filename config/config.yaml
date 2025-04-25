@@ -1,4 +1,4 @@
-mgtab_root: "data/raw"
+mgtab_root: "data"
 neo4j:
   uri: "bolt://localhost:7687"
   user: "neo4j"
