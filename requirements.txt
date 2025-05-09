@@ -10,3 +10,4 @@ matplotlib
 neo4j
 py2neo
 jupyterlab
+community
