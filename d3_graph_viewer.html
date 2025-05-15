@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Social Botnet Network Visualization</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #f3f4f6;
+      font-family: "Segoe UI", Roboto, sans-serif;
+    }
+    h2 {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #222;
+      font-size: 20px;
+      z-index: 10;
+      margin: 0;
+    }
+    svg {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      background-color: #ffffff;
+    }
+    .tooltip {
+      position: absolute;
+      padding: 8px 12px;
+      font-size: 13px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      border-radius: 5px;
+      pointer-events: none;
+      visibility: hidden;
+      font-family: "Segoe UI", sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h2>Interactive Social Botnet Graph (Red = Bot, Green = Human)</h2>
+  <svg></svg>
+  <div class="tooltip" id="tooltip"></div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    const svg = d3.select("svg");
+    const tooltip = d3.select("#tooltip");
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const color = d3.scaleOrdinal(["green", "red"]);
+
+    d3.json("d3_graph.json").then(graph => {
+      const simulation = d3.forceSimulation(graph.nodes)
+        .force("link", d3.forceLink(graph.links).id(d => d.id).distance(50))
+        .force("charge", d3.forceManyBody().strength(-120))
+        .force("center", d3.forceCenter(width / 2, height / 2));
+
+      const link = svg.append("g")
+        .attr("stroke", "#aaa")
+        .attr("stroke-opacity", 0.4)
+        .selectAll("line")
+        .data(graph.links)
+        .join("line")
+        .attr("stroke-width", 1);
+
+      const node = svg.append("g")
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1)
+        .selectAll("circle")
+        .data(graph.nodes)
+        .join("circle")
+        .attr("r", 5.5)
+        .attr("fill", d => color(d.group))
+        .call(drag(simulation))
+        .on("mouseover", (event, d) => {
+          tooltip
+            .style("visibility", "visible")
+            .html(`<strong>${d.label}</strong><br>Group: ${d.group === 1 ? "Bot 🤖" : "Human 🧍"}`)
+            .style("top", `${event.pageY - 10}px`)
+            .style("left", `${event.pageX + 10}px`);
+        })
+        .on("mouseout", () => tooltip.style("visibility", "hidden"));
+
+      simulation.on("tick", () => {
+        link
+          .attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+
+        node
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y);
+      });
+
+      function drag(simulation) {
+        return d3.drag()
+          .on("start", (event) => {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+          })
+          .on("drag", (event) => {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+          })
+          .on("end", (event) => {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+          });
+      }
+    });
+  </script>
+</body>
+</html>
